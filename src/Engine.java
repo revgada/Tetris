@@ -8,13 +8,11 @@ public class Engine extends TimerTask {
 
     public Engine()
     {
-        System.out.println ("Timer started");
         board = new Board(12, 24);
     }
 
     public void nextGameTick()
     {
-        System.out.println ("tick");
         board.update();
         board.repaint();
     }
@@ -32,7 +30,7 @@ public class Engine extends TimerTask {
 
         if (board.speedUpGame)
         {
-            tickLimit = tickLimit * 9 / 10; //reduce delay by 90%.
+            tickLimit = tickLimit * 9 / 10;
             board.speedUpGame = false;
         }
     }
