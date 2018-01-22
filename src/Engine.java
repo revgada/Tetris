@@ -3,14 +3,19 @@ import java.util.TimerTask;
 public class Engine extends TimerTask {
 
     Board board;
-    private int tickCounter = 0; //Counts every tick
-    private int tickLimit = 50; //How big tickCounter can get before we drop the piece.
+    private int tickCounter = 0; // Counts every tick
+    private int tickLimit = 50; // Size of how big tickLimit can get before dropping the piece.
 
     public Engine()
     {
         board = new Board(12, 24);
     }
 
+    /***
+     * Method: nextGame
+     *
+     * Description: Invokes the update and repaint methods on the game board
+     */
     public void nextGameTick()
     {
         board.update();

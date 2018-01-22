@@ -14,7 +14,12 @@ public class Board extends JPanel implements KeyListener {
     private Image offscreen = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
     private static final int SQUARE_SIZE = 30;
 
+    /* PieceQueue hold numbers from 1-7 which correspond to pieces in tetrisPieces
+    * so it always cycles the same figures.
+    */
     private LinkedList<Integer> pieceQueue = new LinkedList<Integer> ();
+
+
     private int [] [] currentPiece = new int [1][1];
     private int [] [] nextPiece;
     private int [] [] heldPiece = new int [1][1];
@@ -24,39 +29,45 @@ public class Board extends JPanel implements KeyListener {
 
     private int currentScore = 0;
 
+    //Colors of individual pieces
     private static final Color[] colorsOfPieces = new Color [] { new Color (0Xff0000), new Color (0x8c1aff), new Color (0x00ff00), new Color (0x1a53ff), new Color (0xffff00), new Color (0xff4000), new Color (0x33ffff), new Color(0xff0066)};
 
     private int tetrisPieceX = 0;
     private int tetrisPieceY = 0;
     private final int [] [] [] tetrisPieces = new int [][][] {
-            {{1, 0},
+                    {{1, 0},
                     {1, 0},
                     {1, 1}},
 
-            {{2, 2},
+                    {{2, 2},
                     {2, 0},
                     {2, 0}},
 
-            {{0, 3, 0},
+                    {{0, 3, 0},
                     {0, 3, 0},
                     {0, 3, 0},
                     {0, 3, 0}},
 
-            {{0, 4},
+                    {{0, 4},
                     {4, 4},
                     {4, 0}},
 
-            {{5, 0},
+                    {{5, 0},
                     {5, 5},
                     {0, 5}},
 
-            {{6, 6},
+                    {{6, 6},
                     {6, 6}},
 
-            {{7, 0},
+                    {{7, 0},
                     {7, 7},
                     {7, 0}} };
 
+    /***
+     *
+     * @param width Number of squares horizontally
+     * @param height Number of squares vertically
+     */
     public Board(int width, int height)
     {
         this.gameFieldWidth = width;
@@ -67,6 +78,11 @@ public class Board extends JPanel implements KeyListener {
     }
 
 
+    /***
+     * Method: pieceDrop
+     *
+     * @return Whether to drop the piece or not
+     */
     private boolean pieceDrop()
     {
         tetrisPieceY += 1;
@@ -78,6 +94,11 @@ public class Board extends JPanel implements KeyListener {
         return false;
     }
 
+    /***
+     * Method rotateCurrentBlock
+     *
+     * Description: Rotates the current block 90 degrees
+     */
     private void rotateCurrentBlock()
     {
         int [] [] copy = currentPiece.clone();
@@ -89,6 +110,13 @@ public class Board extends JPanel implements KeyListener {
     }
 
 
+    /***
+     * Method: translateCurrentBlock
+     *
+     * @param direction Direction in which to translate the current block
+     *                  + translates right
+     *                  - translates left
+     */
     private void translateCurrentBlock(int direction)
     {
         tetrisPieceX += direction;
@@ -98,6 +126,11 @@ public class Board extends JPanel implements KeyListener {
         }
     }
 
+    /***
+     * Method: update
+     *
+     * Description: Updates the game by calling a method to create a new piece
+     */
     public void update ()
     {
         if (this.pieceDrop())
@@ -106,6 +139,11 @@ public class Board extends JPanel implements KeyListener {
         }
     }
 
+    /***
+     * Method: holdBlock
+     *
+     * Description: Hold the current piece and replaces the currentPiece with a new piece
+     */
     public void holdBlock ()
     {
         if (isHeld)
@@ -130,12 +168,18 @@ public class Board extends JPanel implements KeyListener {
     }
 
 
+    /***
+     * Method: createPiece
+     *
+     * Description: Checks for loss, then checks whether the line has been filled,
+     * and creates a new piece if needed.
+     */
     private void createPiece()
     {
-        //check for loss
+        // Checks whether the game is over
         if (hasCollided(currentPiece, tetrisPieceX, tetrisPieceY))
         {
-            System.out.println("You have lost. Your currentScore is " + currentScore);
+            System.out.println("Game over. Your current score is " + currentScore);
         }
 
         for (int i = 0; i < currentPiece.length; i++)
@@ -149,6 +193,7 @@ public class Board extends JPanel implements KeyListener {
             }
         }
 
+        // Checks whether the bottom line has been filled
         boolean filled;
         for (int j = this.gameFieldHeight - 1; j > 0; j--)
         {
@@ -183,6 +228,10 @@ public class Board extends JPanel implements KeyListener {
         }
 
 
+        /**Adds a new piece to pieceQueue if is has less then 2 members,
+         * and sets the currentPiece to a new piece.
+         */
+
         if (pieceQueue.size() <= 1)
         {
             for (int i = 0; i < 7; i++)
@@ -205,6 +254,14 @@ public class Board extends JPanel implements KeyListener {
     }
 
 
+    /***
+     * Method: hasCollided
+     *
+     * @param piece Piece to check collision for
+     * @param pieceX X coordinate of the piece
+     * @param pieceY Y coordinate of the piece
+     * @return Whether the piece has collided with another piece
+     */
     private boolean hasCollided(int [] [] piece, int pieceX, int pieceY)
     {
         for (int i = 0; i < piece.length; i++)
@@ -228,7 +285,12 @@ public class Board extends JPanel implements KeyListener {
     }
 
 
-
+    /***
+     * Method: paint
+     *
+     * @param graphics
+     * Description: Invoked by Swing to draw components
+     */
     @Override
     public void paint (Graphics graphics)
     {
@@ -242,10 +304,16 @@ public class Board extends JPanel implements KeyListener {
         graphics.drawImage(offscreen,0,0,null);
     }
 
-
+    /***
+     * Method: paintBuffer
+     *
+     * @param graphics
+     * Description: Draws the grid, pieces on the board, current piece, next piece, and held piece
+     */
     public void paintBuffer (Graphics graphics)
     {
-        //draw grid
+
+        // Draw the grid. First draws horizontal lines, the the vertical ones
         graphics.setColor(Color.BLACK);
         graphics.fillRect(0, 0, this.getWidth(), this.getHeight());
 
@@ -262,10 +330,11 @@ public class Board extends JPanel implements KeyListener {
             }
         }
 
-
+        // Draws the pieces on the board
         drawPiece(graphics, gameField, 0, 0);
 
 
+        // Draws the current block
         for (int i = 0; i < currentPiece.length; i++)
         {
             for (int j = 0; j < currentPiece[0].length; j++)
@@ -281,25 +350,37 @@ public class Board extends JPanel implements KeyListener {
         }
 
 
-        int offsetX = (this.gameFieldWidth + 1) * SQUARE_SIZE; //coordinates of where to draw the next block.
+        // Where to draw the next block
+        int offsetX = (this.gameFieldWidth + 1) * SQUARE_SIZE;
         int offsetY = SQUARE_SIZE;
 
+        // Draws the next block
         graphics.setColor(Color.WHITE);
         graphics.drawString("Next block", offsetX, offsetY - 10);
         drawPiece(graphics, nextPiece, offsetX, offsetY);
 
+        // Draws the held block
         offsetY += SQUARE_SIZE * 5;
         graphics.setColor(Color.WHITE);
         graphics.drawString("Held block", offsetX, offsetY - 10);
         drawPiece(graphics, heldPiece, offsetX, offsetY);
 
-        //draw currentScore
+        // Draws the current score
         graphics.setColor(Color.WHITE);
         graphics.drawString("Lines: " + currentScore, offsetX, offsetY + SQUARE_SIZE * 5);
     }
 
 
-    private void drawPiece(Graphics g, int [] [] block, int offsetX, int offsetY)
+    /***
+     * Method drawPiece
+     *
+     * @param graphics
+     * @param block The block to draw
+     * @param offsetX Offset from the start of the grid horizontally
+     * @param offsetY Offset from the start of the grid vertically
+     * Description: Draws a block
+     */
+    private void drawPiece(Graphics graphics, int [] [] block, int offsetX, int offsetY)
     {
         for (int i = 0; i < block.length; i++)
         {
@@ -307,26 +388,32 @@ public class Board extends JPanel implements KeyListener {
             {
                 if (block [i] [j] != 0)
                 {
-                    g.setColor(colorsOfPieces[block [i] [j]]);
-                    g.fillRect(i * SQUARE_SIZE + offsetX, j * SQUARE_SIZE + offsetY, SQUARE_SIZE, SQUARE_SIZE);
-                    g.setColor(Color.BLACK);
-                    g.drawRect(i * SQUARE_SIZE + offsetX, j * SQUARE_SIZE + offsetY, SQUARE_SIZE, SQUARE_SIZE);
+                    graphics.setColor(colorsOfPieces[block [i] [j]]);
+                    graphics.fillRect(i * SQUARE_SIZE + offsetX, j * SQUARE_SIZE + offsetY, SQUARE_SIZE, SQUARE_SIZE);
+                    graphics.setColor(Color.BLACK);
+                    graphics.drawRect(i * SQUARE_SIZE + offsetX, j * SQUARE_SIZE + offsetY, SQUARE_SIZE, SQUARE_SIZE);
                 }
             }
         }
     }
 
 
-
-    private static int [] [] rotate (int [] [] a)
+    /***
+     * Method: rotate
+     *
+     * @param piece The piece to rotate
+     * @return The rotated piece
+     * Description: Rotates the block 90 degrees
+     */
+    private static int [] [] rotate (int [] [] piece)
     {
-        //sort of use the rotation matrix [[0, 1], [-1, 0]]
-        int [] [] result = new int [a[0].length] [a.length];
-        for (int i = 0; i < a[0].length; i++)
+        //Use the rotation matrix [[0, 1], [-1, 0]]
+        int [] [] result = new int [piece[0].length] [piece.length];
+        for (int i = 0; i < piece[0].length; i++)
         {
-            for (int j = 0; j < a.length; j++)
+            for (int j = 0; j < piece.length; j++)
             {
-                result [i] [j] = a[j] [a[0].length - i - 1];
+                result [i] [j] = piece[j] [piece[0].length - i - 1];
             }
         }
         return result;
@@ -336,7 +423,7 @@ public class Board extends JPanel implements KeyListener {
     @Override
     public void keyTyped(KeyEvent e)
     {
-        //pass.
+        // Do nothing
     }
 
     @Override
@@ -360,6 +447,6 @@ public class Board extends JPanel implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e)
     {
-        //pass
+        // Do nothing
     }
 }
